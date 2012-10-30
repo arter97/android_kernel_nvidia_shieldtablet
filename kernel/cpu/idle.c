@@ -81,9 +81,6 @@ static void cpu_idle_loop(void)
 			check_pgt_cache();
 			rmb();
 
-			if (cpu_is_offline(smp_processor_id()))
-				arch_cpu_idle_dead();
-
 			local_irq_disable();
 			arch_cpu_idle_enter();
 
@@ -115,6 +112,9 @@ static void cpu_idle_loop(void)
 		}
 		tick_nohz_idle_exit();
 		schedule_preempt_disabled();
+		if (cpu_is_offline(smp_processor_id()))
+			arch_cpu_idle_dead();
+
 	}
 }
 
