@@ -398,6 +398,7 @@ struct sdhci_ops {
 	bool	(*is_tuning_done)(struct sdhci_host *sdhci);
 	int	(*validate_sd2_0)(struct sdhci_host *sdhci);
 	void	(*get_max_pio_transfer_limits)(struct sdhci_host *sdhci);
+	void    (*card_event)(struct sdhci_host *host);
 };
 
 static inline void sdhci_check_host_clock(struct sdhci_host *host)
