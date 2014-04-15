@@ -438,4 +438,12 @@ static inline void __sync_cache_range_r(volatile void *p, size_t size)
 #define sync_cache_w(ptr) __sync_cache_range_w(ptr, sizeof *(ptr))
 #define sync_cache_r(ptr) __sync_cache_range_r(ptr, sizeof *(ptr))
 
+#ifdef CONFIG_FREE_PAGES_RDONLY
+#define mark_addr_rdonly(a)	set_memory_ro((unsigned long)a, 1);
+#define mark_addr_rdwrite(a)	set_memory_rw((unsigned long)a, 1);
+#else
+#define mark_addr_rdonly(a)
+#define mark_addr_rdwrite(a)
+#endif
+
 #endif
