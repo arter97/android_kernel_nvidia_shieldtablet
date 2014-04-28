@@ -2883,14 +2883,18 @@ static int sdhci_tegra_issue_tuning_cmd(struct sdhci_host *sdhci)
 
 	timeout = 5;
 	do {
-		timeout--;
 		mdelay(1);
 		intstatus = sdhci_readl(sdhci, SDHCI_INT_STATUS);
 		if (intstatus) {
 			sdhci_writel(sdhci, intstatus, SDHCI_INT_STATUS);
 			break;
 		}
-	} while(timeout);
+	} while (--timeout > 0);
+	if (timeout == 0) {
+		dev_err(mmc_dev(sdhci->mmc),
+			"Timed out waiting for interrupt\n");
+		return -ETIMEDOUT;
+	}
 
 	if ((intstatus & SDHCI_INT_DATA_AVAIL) &&
 		!(intstatus & SDHCI_INT_DATA_CRC)) {
@@ -2931,6 +2935,10 @@ static int sdhci_tegra_scan_tap_values(struct sdhci_host *sdhci,
 		if (err == -ENOMEDIUM) {
 			*status = err;
 			return -1;
+		}
+		if (err == -ETIMEDOUT) {
+			*status = err;
+			return err;
 		}
 		if (err && retry) {
 			retry--;
