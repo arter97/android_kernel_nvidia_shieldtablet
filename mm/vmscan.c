@@ -298,6 +298,10 @@ shrink_slab_node(struct shrink_control *shrinkctl, struct shrinker *shrinker,
 	int nid = shrinkctl->nid;
 	long batch_size = shrinker->batch ? shrinker->batch
 					  : SHRINK_BATCH;
+	long min_cache_size = batch_size;
+
+	if (current_is_kswapd())
+		min_cache_size = 0;
 
 	if (shrinker->count_objects)
 		max_pass = shrinker->count_objects(shrinker, shrinkctl);
@@ -352,7 +356,7 @@ shrink_slab_node(struct shrink_control *shrinkctl, struct shrinker *shrinker,
 				nr_pages_scanned, lru_pages,
 				max_pass, delta, total_scan);
 
-	while (total_scan >= batch_size) {
+	while (total_scan > min_cache_size) {
 
 		if (shrinker->scan_objects) {
 			unsigned long ret;
@@ -365,6 +369,9 @@ shrink_slab_node(struct shrink_control *shrinkctl, struct shrinker *shrinker,
 		} else {
 			int nr_before;
 			long ret;
+
+			if (total_scan < batch_size)
+				batch_size = total_scan;
 
 			nr_before = do_shrinker_shrink(shrinker, shrinkctl, 0);
 			ret = do_shrinker_shrink(shrinker, shrinkctl,
