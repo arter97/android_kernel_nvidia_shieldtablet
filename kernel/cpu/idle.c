@@ -54,7 +54,7 @@ static inline int cpu_idle_poll(void)
 	 * test_ti_thread_flag_relaxed(), as tif_need_resched_relaxed()
 	 * ultimately invokes test_ti_thread_flag_relaxed().
 	 */
-	while (!tif_need_resched_relaxed())
+	while (!tif_need_resched_relaxed() && cpu_idle_force_poll)
 		cpu_read_relax();
 	trace_cpu_idle_rcuidle(PWR_EVENT_EXIT, smp_processor_id());
 	rcu_idle_exit();
