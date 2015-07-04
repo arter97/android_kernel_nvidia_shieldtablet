@@ -31,6 +31,7 @@
 #include <linux/workqueue.h>
 #include <linux/kthread.h>
 #include <linux/slab.h>
+#include <linux/powersuspend.h>
 #include "cpufreq_governor.h"
 
 #define CREATE_TRACE_POINTS
@@ -65,6 +66,9 @@ static struct task_struct *speedchange_task;
 static cpumask_t speedchange_cpumask;
 static spinlock_t speedchange_cpumask_lock;
 static struct mutex gov_lock;
+
+/* boolean for determining screen on/off state */
+static bool suspended = false;
 
 /* Target load.  Lower values result in higher CPU speeds. */
 #define DEFAULT_TARGET_LOAD 90
@@ -415,7 +419,7 @@ static void cpufreq_interactive_timer(unsigned long data)
 	tunables->boosted = tunables->boost_val || now < tunables->boostpulse_endtime;
 
 	new_freq = choose_freq(pcpu, loadadjfreq);
-	if (cpu_load >= tunables->go_hispeed_load || tunables->boosted) {
+	if ((cpu_load >= tunables->go_hispeed_load || tunables->boosted) && !suspended) {
 		new_freq = max(new_freq, tunables->hispeed_freq);
 		if (pcpu->target_freq < tunables->hispeed_freq &&
 				tunables->boost_factor)
@@ -1396,6 +1400,25 @@ static void cpufreq_interactive_nop_timer(unsigned long data)
 {
 }
 
+static void interactive_early_suspend(struct power_suspend *handler)
+{
+	suspended = true;
+
+	return;
+}
+
+static void interactive_late_resume(struct power_suspend *handler)
+{
+	suspended = false;
+
+	return;
+}
+
+static struct power_suspend interactive_suspend = {
+	.suspend = interactive_early_suspend,
+	.resume = interactive_late_resume,
+};
+
 static int __init cpufreq_interactive_init(void)
 {
 	unsigned int i;
@@ -1415,6 +1438,8 @@ static int __init cpufreq_interactive_init(void)
 		spin_lock_init(&pcpu->target_freq_lock);
 		init_rwsem(&pcpu->enable_sem);
 	}
+
+	register_power_suspend(&interactive_suspend);
 
 	tunables->above_hispeed_delay = default_above_hispeed_delay;
 	tunables->nabove_hispeed_delay =
