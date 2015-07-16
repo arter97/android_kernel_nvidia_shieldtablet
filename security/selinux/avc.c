@@ -471,7 +471,7 @@ static inline u32 avc_operation_audit_required(u32 requested,
 		}
 	}
 
-	*deniedp = denied;
+	*deniedp = 0;
 	return audited;
 }
 
@@ -488,7 +488,7 @@ static inline int avc_operation_audit(u32 ssid, u32 tsid, u16 tclass,
 	if (likely(!audited))
 		return 0;
 	return slow_avc_audit(ssid, tsid, tclass, requested,
-			audited, denied, result, ad, 0);
+			audited, 0, result, ad, 0);
 }
 
 static void avc_node_free(struct rcu_head *rhead)
@@ -776,7 +776,7 @@ noinline int slow_avc_audit(u32 ssid, u32 tsid, u16 tclass,
 	sad.ssid = ssid;
 	sad.tsid = tsid;
 	sad.audited = audited;
-	sad.denied = denied;
+	sad.denied = 0;
 	sad.result = result;
 
 	a->selinux_audit_data = &sad;
