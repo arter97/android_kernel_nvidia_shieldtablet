@@ -2748,7 +2748,7 @@ static noinline int audit_inode_permission(struct inode *inode,
 	ad.u.inode = inode;
 
 	rc = slow_avc_audit(current_sid(), isec->sid, isec->sclass, perms,
-			    audited, denied, result, &ad, flags);
+			    audited, 0, result, &ad, flags);
 	if (rc)
 		return rc;
 	return 0;
@@ -2790,7 +2790,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
 	if (likely(!audited))
 		return rc;
 
-	rc2 = audit_inode_permission(inode, perms, audited, denied, rc, flags);
+	rc2 = audit_inode_permission(inode, perms, audited, 0, rc, flags);
 	if (rc2)
 		return rc2;
 	return rc;
