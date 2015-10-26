@@ -1306,8 +1306,8 @@ static void vmstat_shepherd(struct work_struct *w)
 
 	put_online_cpus();
 
-	schedule_delayed_work(&shepherd,
-		round_jiffies_relative(sysctl_stat_interval));
+	schedule_delayed_work_on(smp_processor_id(),
+		&shepherd, round_jiffies_relative(sysctl_stat_interval));
 
 }
 
