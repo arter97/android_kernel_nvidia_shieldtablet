@@ -141,7 +141,7 @@ int vm_swappiness = 60;
 unsigned long vm_total_pages;	/* The total number of pages which the VM controls */
 
 #ifdef CONFIG_KSWAPD_CPU_AFFINITY_MASK
-char *kswapd_cpu_mask = CONFIG_KSWAPD_CPU_AFFINITY_MASK;
+char *kswapd_cpu_mask = CONFIG_KSWAPD_CPU_AFFINITY_MASK_VALUE;
 #else
 char *kswapd_cpu_mask = NULL;
 #endif
