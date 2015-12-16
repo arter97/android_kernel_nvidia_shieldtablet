@@ -1,0 +1,21 @@
+#
+# ADDITIONAL_DEFAULT_PROPERTIES
+#
+ro.secure=1
+ro.allow.mock.location=0
+ro.debuggable=0
+ro.zygote=zygote32
+dalvik.vm.image-dex2oat-Xms=64m
+dalvik.vm.image-dex2oat-Xmx=64m
+dalvik.vm.dex2oat-Xms=64m
+dalvik.vm.dex2oat-Xmx=512m
+ro.dalvik.vm.native.bridge=0
+debug.atrace.tags.enableflags=0
+persist.sys.usb.config=mtp
+ro.adb.secure=1
+#
+# BOOTIMAGE_BUILD_PROPERTIES
+#
+ro.bootimage.build.date=Thu Dec 17 05:40:56 PST 2015
+ro.bootimage.build.date.utc=1450359656
+ro.bootimage.build.fingerprint=nvidia/sb_na_wf/shieldtablet:6.0/MRA58K/40827_642.8910:user/test-keys
