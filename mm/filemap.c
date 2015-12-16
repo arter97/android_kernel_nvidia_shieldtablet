@@ -747,8 +747,7 @@ EXPORT_SYMBOL(page_cache_next_hole);
  * Is there a pagecache struct page at the given (mapping, offset) tuple?
  * If yes, increment its refcount and return it; if no, return NULL.
  */
-struct page *find_get_page_flags(struct address_space *mapping, pgoff_t offset,
-				 int fgp_flags)
+struct page *find_get_page(struct address_space *mapping, pgoff_t offset)
 {
 	void **pagep;
 	struct page *page;
@@ -785,8 +784,6 @@ repeat:
 		}
 	}
 out:
-	if (page && (fgp_flags & FGP_ACCESSED))
-		mark_page_accessed(page);
 	rcu_read_unlock();
 
 	return page;
