@@ -26,7 +26,9 @@ fwmark_reflect - BOOLEAN
 	Controls the fwmark of kernel-generated IPv4 reply packets that are not
 	associated with a socket for example, TCP RSTs or ICMP echo replies).
 	If unset, these packets have a fwmark of zero. If set, they have the
-	fwmark of the packet they are replying to.
+	fwmark of the packet they are replying to. Similarly affects the fwmark
+	used by internal routing lookups triggered by incoming packets, such as
+	the ones used for Path MTU Discovery.
 	Default: 0
 
 route/max_size - INTEGER
@@ -588,6 +590,9 @@ tcp_limit_output_bytes - INTEGER
 	typical pfifo_fast qdiscs.
 	tcp_limit_output_bytes limits the number of bytes on qdisc
 	or device to reduce artificial RTT/cwnd and reduce bufferbloat.
+	Note: For GSO/TSO enabled flows, we try to have at least two
+	packets in flight. Reducing tcp_limit_output_bytes might also
+	reduce the size of individual GSO packet (64KB being the max)
 	Default: 131072
 
 tcp_challenge_ack_limit - INTEGER
@@ -1114,7 +1119,9 @@ fwmark_reflect - BOOLEAN
 	Controls the fwmark of kernel-generated IPv6 reply packets that are not
 	associated with a socket for example, TCP RSTs or ICMPv6 echo replies).
 	If unset, these packets have a fwmark of zero. If set, they have the
-	fwmark of the packet they are replying to.
+	fwmark of the packet they are replying to. Similarly affects the fwmark
+	used by internal routing lookups triggered by incoming packets, such as
+	the ones used for Path MTU Discovery.
 	Default: 0
 
 conf/interface/*:
@@ -1254,6 +1261,13 @@ router_solicitations - INTEGER
 	routers are present.
 	Default: 3
 
+use_oif_addrs_only - BOOLEAN
+	When enabled, the candidate source addresses for destinations
+	routed via this interface are restricted to the set of addresses
+	configured on this interface (vis. RFC 6724, section 4).
+
+	Default: false
+
 use_tempaddr - INTEGER
 	Preference for Privacy Extensions (RFC3041).
 	  <= 0 : disable Privacy Extensions
@@ -1334,6 +1348,19 @@ ndisc_notify - BOOLEAN
 	0 - (default): do nothing
 	1 - Generate unsolicited neighbour advertisements when device is brought
 	    up or hardware address changes.
+
+optimistic_dad - BOOLEAN
+	Whether to perform Optimistic Duplicate Address Detection (RFC 4429).
+		0: disabled (default)
+		1: enabled
+
+use_optimistic - BOOLEAN
+	If enabled, do not classify optimistic addresses as deprecated during
+	source address selection.  Preferred addresses will still be chosen
+	before optimistic addresses, subject to other ranking in the source
+	address selection algorithm.
+		0: disabled (default)
+		1: enabled
 
 icmp/*:
 ratelimit - INTEGER
