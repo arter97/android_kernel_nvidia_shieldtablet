@@ -28,8 +28,8 @@
 #include <linux/nvmap.h>
 #endif
 
-unsigned long nv_reclaim_counter();
-unsigned long nv_kswapd_counter();
+unsigned long nv_reclaim_counter(void);
+unsigned long nv_kswapd_counter(void);
 static int nv_meminfo_proc_show(struct seq_file *m, void *v)
 {
 	/*

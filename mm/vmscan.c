@@ -2751,13 +2751,13 @@ out:
 }
 
 unsigned long reclaim_counter;
-unsigned long nv_reclaim_counter()
+unsigned long nv_reclaim_counter(void)
 {
 	return reclaim_counter;
 }
 
 unsigned long kswapd_counter;
-unsigned long nv_kswapd_counter()
+unsigned long nv_kswapd_counter(void)
 {
 	return kswapd_counter;
 }
