@@ -1,0 +1,23 @@
+ui_print(" ");
+ui_print(" - mounting system partition");
+run_program("/sbin/mount", "/system");
+ui_print(" - mounting data partition");
+run_program("/sbin/mount", "/data");
+
+ui_print(" - flashing boot.img");
+package_extract_file("boot.img", "/dev/block/platform/sdhci-tegra.3/by-name/LNX");
+
+ui_print(" - tuning file systems");
+run_program("/sbin/fstrim", "-v", "/system");
+run_program("/sbin/fstrim", "-v", "/data");
+run_program("/sbin/fstrim", "-v", "/cache");
+
+ui_print(" - unmounting partition /data");
+unmount("/data");
+
+ui_print(" - unmounting partition /system");
+unmount("/system");
+
+ui_print(" ");
+ui_print("finished");
+run_program("/sbin/sync");
