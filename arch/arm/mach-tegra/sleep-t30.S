@@ -178,7 +178,7 @@ ENTRY(tegra30_hotplug_shutdown)
 	/* Powergate this CPU */
 	mov	r0, #TEGRA30_POWER_HOTPLUG_SHUTDOWN
 	bl	tegra30_cpu_shutdown
-	mov	pc, r6			@ should never get here
+	ret	r6			@ should never get here
 ENDPROC(tegra30_hotplug_shutdown)
 
 /*
@@ -194,7 +194,7 @@ ENTRY(tegra30_cpu_shutdown)
 	cpu_id	r3
 #ifndef CONFIG_ARCH_TEGRA_HAS_SYMMETRIC_CPU_PWR_GATE
 	cmp	r3, #0
-	moveq	pc, lr		@ Must never be called for CPU 0
+	reteq	lr		@ Must never be called for CPU 0
 #endif
 
 	ldr	r12, =TEGRA_FLOW_CTRL_VIRT
@@ -336,7 +336,7 @@ ENTRY(tegra3_sleep_cpu_secondary_finish)
 	mov	r0, #0				@ power mode flags (!hotplug)
 	bl	tegra30_cpu_shutdown
 	mov	r0, #1				@ never return here
-	mov	pc, r6
+	ret	r6
 ENDPROC(tegra3_sleep_cpu_secondary_finish)
 
 /*
@@ -837,7 +837,7 @@ zcal_done:
 
 	mov32	r0, TEGRA_PMC_BASE
 	ldr	r0, [r0, #PMC_SCRATCH41]
-	mov	pc, r0
+	ret	r0
 ENDPROC(tegra3_lp1_reset)
 
 #if defined(CONFIG_ARCH_TEGRA_3x_SOC) || defined(CONFIG_ARCH_TEGRA_12x_SOC)
@@ -998,7 +998,7 @@ tegra3_cpu_clk32k:
 	str r1, [r4, #PMC_SCRATCH1_ECO]
 #endif
 
-	mov	pc, lr
+	ret	lr
 
 lp1_clocks_prepare:
 	/* start by jumping to clkm to safely disable PLLs, then jump
@@ -1082,7 +1082,7 @@ powerdown_pll_x:
 	 */
 	mov	r0, #(1 << 24)
 	str	r0, [r5, #CLK_RESET_SCLK_BURST]
-	mov	pc, lr
+	ret	lr
 
 /*
  * tegra3_enter_sleep
@@ -1176,7 +1176,7 @@ padsave:
 padsave_done:
 
 	dsb
-	mov	pc, lr
+	ret	lr
 
 tegra3_sdram_self_refresh:
 #if defined(CONFIG_ARCH_TEGRA_3x_SOC) || defined(CONFIG_ARCH_TEGRA_12x_SOC)
@@ -1308,11 +1308,11 @@ dram_sr_wait4:
 
 #endif
 	dsb
-	mov	pc, lr
+	ret	lr
 
 pmc_io_dpd_skip:
 	dsb
-	mov	pc, lr
+	ret	lr
 
 	.ltorg
 /* dummy symbol for end of IRAM */

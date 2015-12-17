@@ -261,7 +261,7 @@ __enable_i_cache_branch_pred:
 	mrc	p15, 0, r0, c1, c0, 0
 	orr	r0, r0, #0x1800
 	mcr	p15, 0, r0, c1, c0, 0	@ enable branch prediction, i-cache
-	mov	pc, lr
+	ret	lr
 	/* no fall through, just return to the caller */
 
 cortex_a9:
@@ -326,7 +326,7 @@ cortex_a9:
 	dsb
 	isb
 #endif
-	mov	pc, lr
+	ret	lr
 
 /*
  * __tegra_cpu_reset_handler_halt_failed:

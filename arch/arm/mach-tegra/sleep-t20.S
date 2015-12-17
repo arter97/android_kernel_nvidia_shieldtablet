@@ -73,7 +73,7 @@ ENTRY(tegra20_hotplug_shutdown)
 	/* Put this CPU down */
 	cpu_id	r0
 	bl	tegra20_cpu_shutdown
-	mov	pc, r6			@ should never get here
+	ret	r6			@ should never get here
 ENDPROC(tegra20_hotplug_shutdown)
 #endif
 
@@ -93,7 +93,7 @@ ENDPROC(tegra20_hotplug_shutdown)
  */
 ENTRY(tegra20_cpu_shutdown)
 	cmp	r0, #0
-	moveq	pc, lr			@ must not be called for CPU 0
+	reteq	lr			@ must not be called for CPU 0
 
 	mov32	r1, TEGRA_PMC_VIRT + PMC_SCRATCH41
 	mov	r12, #CPU_RESETTABLE
@@ -115,7 +115,7 @@ ENTRY(tegra20_cpu_shutdown)
 	cpu_id	r3
 	cmp	r3, r0
 	beq	.
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra20_cpu_shutdown)
 #endif
 
@@ -130,7 +130,7 @@ ENTRY(tegra2_cpu_clear_resettable)
 	mov32	r1, TEGRA_PMC_VIRT + PMC_SCRATCH41
 	mov	r12, #CPU_NOT_RESETTABLE
 	str	r12, [r1]
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra2_cpu_clear_resettable)
 
 /*
@@ -143,7 +143,7 @@ ENTRY(tegra2_cpu_set_resettable_soon)
 	mov32	r1, TEGRA_PMC_VIRT + PMC_SCRATCH41
 	mov	r12, #CPU_RESETTABLE_SOON
 	str	r12, [r1]
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra2_cpu_set_resettable_soon)
 
 /*
@@ -158,7 +158,7 @@ ENTRY(tegra2_cpu_is_resettable_soon)
 	cmp	r12, #CPU_RESETTABLE_SOON
 	moveq	r0, #1
 	movne	r0, #0
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra2_cpu_is_resettable_soon)
 
 /*
@@ -362,7 +362,7 @@ exit_selfrefresh_loop:
 
 	ldr	r0, =TEGRA_PMC_BASE
 	ldr	r0, [r0, #PMC_SCRATCH41]
-	mov	pc, r0
+	ret	r0
 ENDPROC(tegra2_lp1_reset)
 
 /*
@@ -416,7 +416,7 @@ tegra2_cpu_clk32k:
 	ldr	r0, [r5, #CLK_RESET_PLLC_BASE]
 	bic	r0, r0, #(1 << 30)
 	str	r0, [r5, #CLK_RESET_PLLC_BASE]
-	mov	pc, lr
+	ret	lr
 
 /*
  * tegra2_enter_sleep
@@ -500,7 +500,7 @@ padsave_done:
 	adr	r2, tegra2_sclk_save
 	str	r0, [r2]
 	dsb
-	mov	pc, lr
+	ret	lr
 
 tegra2_sdram_pad_address:
 	.word	TEGRA_APB_MISC_BASE + 0x8c8 /* XM2CFGCPADCTRL */

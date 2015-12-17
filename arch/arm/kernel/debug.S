@@ -81,7 +81,7 @@ ENTRY(printascii)
 #if defined(CONFIG_DEBUG_ICEDCC) && defined(CONFIG_SMP)
 		mrc	p15, 0, r3, c0, c0, 5
 		ands	r3, r3, #3
-		movne	pc, lr
+		retne	lr
 #endif
 		addruart_current r3, r1, r2
 		b	2f
@@ -95,14 +95,14 @@ ENTRY(printascii)
 		ldrneb	r1, [r0], #1
 		teqne	r1, #0
 		bne	1b
-		mov	pc, lr
+		ret	lr
 ENDPROC(printascii)
 
 ENTRY(printch)
 #if defined(CONFIG_DEBUG_ICEDCC) && defined(CONFIG_SMP)
 		mrc	p15, 0, r3, c0, c0, 5
 		ands	r3, r3, #3
-		movne	pc, lr
+		retne	lr
 #endif
 		addruart_current r3, r1, r2
 		mov	r1, r0
@@ -115,7 +115,7 @@ ENTRY(debug_ll_addr)
 		addruart r2, r3, ip
 		str	r2, [r0]
 		str	r3, [r1]
-		mov	pc, lr
+		ret	lr
 ENDPROC(debug_ll_addr)
 #endif
 
@@ -126,7 +126,7 @@ ENTRY(printascii)
 		mov	r0, #0x04		@ SYS_WRITE0
 	ARM(	svc	#0x123456	)
 	THUMB(	svc	#0xab		)
-		mov	pc, lr
+		ret	lr
 ENDPROC(printascii)
 
 ENTRY(printch)
@@ -135,14 +135,14 @@ ENTRY(printch)
 		mov	r0, #0x03		@ SYS_WRITEC
 	ARM(	svc	#0x123456	)
 	THUMB(	svc	#0xab		)
-		mov	pc, lr
+		ret	lr
 ENDPROC(printch)
 
 ENTRY(debug_ll_addr)
 		mov	r2, #0
 		str	r2, [r0]
 		str	r2, [r1]
-		mov	pc, lr
+		ret	lr
 ENDPROC(debug_ll_addr)
 
 #endif
