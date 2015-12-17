@@ -178,7 +178,7 @@ ENTRY(tegra30_hotplug_shutdown)
 	/* Powergate this CPU */
 	mov	r0, #TEGRA30_POWER_HOTPLUG_SHUTDOWN
 	bl	tegra30_cpu_shutdown
-	mov	pc, r6			@ should never get here
+	ret	r6			@ should never get here
 ENDPROC(tegra30_hotplug_shutdown)
 
 /*
@@ -194,7 +194,7 @@ ENTRY(tegra30_cpu_shutdown)
 	cpu_id	r3
 #ifndef CONFIG_ARCH_TEGRA_HAS_SYMMETRIC_CPU_PWR_GATE
 	cmp	r3, #0
-	moveq	pc, lr		@ Must never be called for CPU 0
+	reteq	lr		@ Must never be called for CPU 0
 #endif
 
 	ldr	r12, =TEGRA_FLOW_CTRL_VIRT
@@ -336,7 +336,7 @@ ENTRY(tegra3_sleep_cpu_secondary_finish)
 	mov	r0, #0				@ power mode flags (!hotplug)
 	bl	tegra30_cpu_shutdown
 	mov	r0, #1				@ never return here
-	mov	pc, r6
+	ret	r6
 ENDPROC(tegra3_sleep_cpu_secondary_finish)
 
 /*
@@ -861,7 +861,7 @@ self_refresh_skip:
 #endif
 	mov32	r0, TEGRA_PMC_BASE
 	ldr	r0, [r0, #PMC_SCRATCH41]
-	mov	pc, r0
+	ret	r0
 ENDPROC(tegra3_lp1_reset)
 
 #if defined(CONFIG_ARCH_TEGRA_3x_SOC) || \
@@ -1037,7 +1037,7 @@ tegra148_set_mem_req_interrupt:
 	ldr	r8, =TEGRA_TERTIARY_ICTLR_BASE
 	ldr	r0, =TRI_ICTLR_PMC_WAKE_INT
 	str	r0, [r8, #TRI_ICTLR_CPU_IER_SET]
-	mov	pc, lr
+	ret	lr
 
 /*
  * tegra148_lp1bb_clear_warmboot_flag
@@ -1051,7 +1051,7 @@ tegra148_lp1bb_clear_warmboot_flag:
 	ldr	r0, [r4, #PMC_CTRL]
 	bic	r0, r0, #PMC_CTRL_SIDE_EFFECT_LP0
 	str	r0, [r4, #PMC_CTRL]
-	mov	pc, lr
+	ret	lr
 
 /* Based on value of lp_enter_state, update LP state
  * scratch register
@@ -1064,7 +1064,7 @@ tegra148_set_lp_state:
 	bic	r1, r2, lsl #PMC_LP_STATE_BIT_OFFSET
 	orr	r1, r0
 	str	r1, [r4, #PMC_LP_STATE_SCRATCH_REG]
-	mov	pc, lr
+	ret	lr
 
 /* tegra3_lp0_tear_down_core
  *
@@ -1156,7 +1156,7 @@ tegra3_cpu_clk32k:
 	str r1, [r4, #PMC_POR_DPD_CTRL]
 #endif
 
-	mov	pc, lr
+	ret	lr
 
 lp1_clocks_prepare:
 	/* start by jumping to clkm to safely disable PLLs, then jump
@@ -1263,7 +1263,7 @@ powerdown_pll_x:
 	 */
 	mov	r0, #(1 << 24)
 	str	r0, [r5, #CLK_RESET_SCLK_BURST]
-	mov	pc, lr
+	ret	lr
 
 /*
  * tegra3_enter_sleep
@@ -1359,7 +1359,7 @@ padsave:
 padsave_done:
 
 	dsb
-	mov	pc, lr
+	ret	lr
 
 tegra3_sdram_self_refresh:
 #if defined(CONFIG_ARCH_TEGRA_3x_SOC) || \
@@ -1494,7 +1494,7 @@ dram_sr_wait4:
 
 #endif
 	dsb
-	mov	pc, lr
+	ret	lr
 
 pmc_io_dpd_skip:
 #if defined(CONFIG_ARCH_TEGRA_14x_SOC)
@@ -1507,7 +1507,7 @@ pmc_io_dpd_skip:
 	str	r1, [r4, #PMC_IO_DPD2_REQ]
 #endif
 	dsb
-	mov	pc, lr
+	ret	lr
 
 	.ltorg
 /* dummy symbol for end of IRAM */

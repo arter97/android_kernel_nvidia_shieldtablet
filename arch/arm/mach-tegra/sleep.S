@@ -93,7 +93,7 @@ ENTRY(tegra_pen_lock)
 	cmpeq	r12, r0			@ !turn == cpu?
 	beq	1b			@ while !turn == cpu && flag[!cpu] == 1
 
-	mov	pc, lr			@ locked
+	ret	lr			@ locked
 ENDPROC(tegra_pen_lock)
 
 ENTRY(tegra_pen_unlock)
@@ -105,7 +105,7 @@ ENTRY(tegra_pen_unlock)
 	addne	r2, r3, #PMC_SCRATCH39
 	mov	r12, #0
 	str	r12, [r2]
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra_pen_unlock)
 
 /*
@@ -116,7 +116,7 @@ ENDPROC(tegra_pen_unlock)
  */
 ENTRY(tegra_cpu_exit_coherency)
 	exit_smp r4, r5
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra_cpu_exit_coherency)
 
 /*
@@ -140,7 +140,7 @@ ENTRY(tegra_flush_cache)
 	bl	v7_flush_dcache_all
 
 	ldmfd	sp!, {r4-r5, r7, r9-r11, lr}
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra_flush_cache)
 
 /*
@@ -198,7 +198,7 @@ ENTRY(tegra_flush_l1_cache)
 	isb
 	dsb
 	ldmfd	sp!, {r4-r5, r7, r9-r11, lr}
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra_flush_l1_cache)
 
 #ifdef CONFIG_PM_SLEEP
@@ -266,7 +266,7 @@ ENTRY(tegra_turn_off_mmu)
 	mov32	r3, tegra_shut_off_mmu
 	add	r3, r3, r0
 	mov	r0, r1
-	mov	pc, r3
+	ret	r3
 ENDPROC(tegra_turn_off_mmu)
 
 tegra_pgd_phys_address:
@@ -314,7 +314,7 @@ tegra_shut_off_mmu:
 	str	r2, [r1, #L2X0_CACHE_SYNC]
 	str	r2, [r1, #L2X0_CTRL]
 #endif /* CONFIG_CACHE_L2X0 */
-2:	mov	pc, r0
+2:	ret	r0
 
 /*
  * tegra_cpu_clk32k
@@ -329,7 +329,7 @@ ENTRY(tegra_cpu_pllp)
 	str	r0, [r5, #CLK_RESET_CCLK_BURST]
 	mov	r0, #0
 	str	r0, [r5, #CLK_RESET_CCLK_DIVIDER]
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra_cpu_pllp)
 #endif
 
@@ -346,5 +346,5 @@ ENTRY(tegra_restart_prev_smc)
 	mov	r3, #0
 	smc	#0
 	ldmia	sp!, { r1-r3 }
-	mov	pc, lr
+	ret	lr
 ENDPROC(tegra_restart_prev_smc)

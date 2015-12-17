@@ -62,7 +62,7 @@ ENTRY(cpu_resume_mmu)
 	instr_sync
 	mov	r0, r0
 	mov	r0, r0
-	mov	pc, r3			@ jump to virtual address
+	ret	r3			@ jump to virtual address
 ENDPROC(cpu_resume_mmu)
 	.ltorg
 	.align	5
@@ -71,7 +71,7 @@ cpu_resume_turn_mmu_on:
 	mrc	p15, 0, r1, c0, c0, 0	@ read id reg
 	mov	r1, r1
 	mov	r1, r1
-	mov	pc, r3			@ jump to virtual address
+	ret	r3			@ jump to virtual address
 ENDPROC(cpu_resume_turn_mmu_on)
 	.popsection
 cpu_resume_after_mmu:
