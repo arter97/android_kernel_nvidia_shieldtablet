@@ -45,9 +45,9 @@ on post-fs-data
     mkdir /data/misc/phs 0775 system system
 
 # unified scaling process
-service ussrd /vendor/bin/ussrd
-    user system
-    group system
-    class main
-    socket phsd stream 0666 system system
+#service ussrd /vendor/bin/ussrd
+#    user system
+#    group system
+#    class main
+#    socket phsd stream 0666 system system
 
