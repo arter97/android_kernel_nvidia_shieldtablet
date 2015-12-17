@@ -30,6 +30,8 @@
 #include <linux/usb/gadget.h>
 #include <linux/of_platform.h>
 
+#include <linux/wakelock.h>
+
 #include "gadget_chips.h"
 
 #include "f_nvusb.c"
@@ -101,6 +103,9 @@ struct android_dev {
 	struct work_struct work;
 	char ffs_aliases[256];
 	unsigned short ffs_string_ids;
+
+	/* for holding wakelock during USB connected to PC */
+	struct wake_lock android_usb_wakelock;
 };
 
 static struct class *android_class;
@@ -178,10 +183,15 @@ static void android_work(struct work_struct *data)
 	unsigned long flags;
 
 	spin_lock_irqsave(&cdev->lock, flags);
-	if (cdev->config)
+	if (cdev->config) {
 		uevent_envp = configured;
-	else if (dev->connected != dev->sw_connected)
+		wake_lock(&dev->android_usb_wakelock);
+	}
+	else if (dev->connected != dev->sw_connected) {
 		uevent_envp = dev->connected ? connected : disconnected;
+		if (!dev->connected)
+			wake_unlock(&dev->android_usb_wakelock);
+	}
 	dev->sw_connected = dev->connected;
 	spin_unlock_irqrestore(&cdev->lock, flags);
 
@@ -1597,6 +1607,7 @@ static int __init init(void)
 	INIT_LIST_HEAD(&dev->enabled_functions);
 	INIT_WORK(&dev->work, android_work);
 	mutex_init(&dev->mutex);
+	wake_lock_init(&dev->android_usb_wakelock, WAKE_LOCK_SUSPEND, "android usb");
 
 	err = android_create_device(dev);
 	if (err) {
