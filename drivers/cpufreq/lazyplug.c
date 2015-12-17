@@ -71,6 +71,8 @@
 #include <linux/slab.h>
 #include <linux/input.h>
 #include <linux/cpufreq.h>
+#include <linux/pm.h>
+#include <linux/suspend.h>
 
 #ifdef CONFIG_POWERSUSPEND
 #include <linux/powersuspend.h>
@@ -567,6 +569,31 @@ static struct input_handler lazyplug_input_handler = {
 	.id_table       = lazyplug_ids,
 };
 
+static int __ref lazyplug_pm_notifier(struct notifier_block *notifier,
+					unsigned long pm_event, void *v)
+{
+	int i;
+
+	switch (pm_event) {
+	case PM_SUSPEND_PREPARE:
+		for_each_possible_cpu(i) {
+			cpu_up(i);
+		}
+
+		break;
+	case PM_POST_SUSPEND:
+	default:
+		break;
+	}
+
+	return NOTIFY_OK;
+}
+
+static struct notifier_block lazyplug_pm_notifier_nb = {
+	.notifier_call = lazyplug_pm_notifier,
+	.priority = 1,
+};
+
 int __init lazyplug_init(void)
 {
 	int rc;
@@ -587,6 +614,7 @@ int __init lazyplug_init(void)
 	}
 
 	rc = input_register_handler(&lazyplug_input_handler);
+	register_pm_notifier(&lazyplug_pm_notifier_nb);
 
 #ifdef CONFIG_POWERSUSPEND
 	register_power_suspend(&lazyplug_power_suspend_driver);
