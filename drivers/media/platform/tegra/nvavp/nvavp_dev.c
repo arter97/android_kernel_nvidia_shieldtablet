@@ -114,6 +114,8 @@ static bool boost_sclk;
 static bool audio_enabled;
 #endif
 
+extern void lazyplug_enter_lazy(bool enter);
+
 struct nvavp_channel {
 	struct mutex			pushbuffer_lock;
 	dma_addr_t			pushbuf_phys;
@@ -1904,8 +1906,11 @@ static int tegra_nvavp_open(struct nvavp_info *nvavp,
 
 	if (!ret) {
 		nvavp->refcount++;
-		if (IS_VIDEO_CHANNEL_ID(channel_id))
+		if (IS_VIDEO_CHANNEL_ID(channel_id)) {
 			nvavp->video_refcnt++;
+			if (nvavp->video_refcnt >= 0)
+				lazyplug_enter_lazy(true);
+		}
 		if (IS_AUDIO_CHANNEL_ID(channel_id))
 			nvavp->audio_refcnt++;
 	}
@@ -1998,8 +2003,11 @@ static int tegra_nvavp_release(struct nvavp_clientctx *clientctx,
 	if (!nvavp->refcount)
 		nvavp_uninit(nvavp);
 
-	if (IS_VIDEO_CHANNEL_ID(channel_id))
+	if (IS_VIDEO_CHANNEL_ID(channel_id)) {
 		nvavp->video_refcnt--;
+		if (nvavp->video_refcnt == 0)
+			lazyplug_enter_lazy(false);
+	}
 	if (IS_AUDIO_CHANNEL_ID(channel_id))
 		nvavp->audio_refcnt--;
 
