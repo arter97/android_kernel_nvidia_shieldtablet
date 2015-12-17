@@ -32,6 +32,7 @@
 #include <linux/kthread.h>
 #include <linux/slab.h>
 #include <linux/powersuspend.h>
+#include <linux/input.h>
 #include "cpufreq_governor.h"
 
 #define CREATE_TRACE_POINTS
@@ -76,6 +77,12 @@ static unsigned int default_target_loads[] = {DEFAULT_TARGET_LOAD};
 
 #define DEFAULT_TIMER_RATE (20 * USEC_PER_MSEC)
 #define DEFAULT_ABOVE_HISPEED_DELAY DEFAULT_TIMER_RATE
+
+/*
+ * Duration in usec to be used with touchboost(interactive_input_event).
+ * Default is 500000 usec(500 msec).
+ */
+#define TOUCHBOOST_DURATION 500000
 
 static unsigned int default_above_hispeed_delay[] = {
 	DEFAULT_ABOVE_HISPEED_DELAY };
@@ -1185,6 +1192,96 @@ static struct attribute_group *get_sysfs_attr(void)
 		return &interactive_attr_group_gov_sys;
 }
 
+static void interactive_input_event(struct input_handle *handle,
+		unsigned int type,
+		unsigned int code, int value)
+{
+	int i;
+	struct cpufreq_interactive_cpuinfo *pcpu;
+	struct cpufreq_interactive_tunables *tunables;
+
+	if (type != EV_SYN || code != SYN_REPORT)
+		return;
+
+	for_each_online_cpu(i) {
+		pcpu = &per_cpu(cpuinfo, i);
+
+		if (pcpu && pcpu->policy)
+			tunables = pcpu->policy->governor_data;
+		else
+			return;
+
+		if (!tunables)
+			return;
+
+		tunables->boostpulse_endtime = ktime_to_us(ktime_get()) + TOUCHBOOST_DURATION;
+		cpufreq_interactive_boost(tunables);
+	}
+}
+
+static int interactive_input_connect(struct input_handler *handler,
+		struct input_dev *dev, const struct input_device_id *id)
+{
+	struct input_handle *handle;
+	int error;
+
+	handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
+	if (!handle)
+		return -ENOMEM;
+
+	handle->dev = dev;
+	handle->handler = handler;
+	handle->name = "cpufreq";
+
+	error = input_register_handle(handle);
+	if (error)
+		goto err2;
+
+	error = input_open_device(handle);
+	if (error)
+		goto err1;
+
+	return 0;
+err1:
+	input_unregister_handle(handle);
+err2:
+	kfree(handle);
+	return error;
+}
+
+static void interactive_input_disconnect(struct input_handle *handle)
+{
+	input_close_device(handle);
+	input_unregister_handle(handle);
+	kfree(handle);
+}
+
+static const struct input_device_id interactive_ids[] = {
+	{
+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
+			 INPUT_DEVICE_ID_MATCH_ABSBIT,
+		.evbit = { BIT_MASK(EV_ABS) },
+		.absbit = { [BIT_WORD(ABS_MT_POSITION_X)] =
+			    BIT_MASK(ABS_MT_POSITION_X) |
+			    BIT_MASK(ABS_MT_POSITION_Y) },
+	}, /* multi-touch touchscreen */
+	{
+		.flags = INPUT_DEVICE_ID_MATCH_KEYBIT |
+			 INPUT_DEVICE_ID_MATCH_ABSBIT,
+		.keybit = { [BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH) },
+		.absbit = { [BIT_WORD(ABS_X)] =
+			    BIT_MASK(ABS_X) | BIT_MASK(ABS_Y) },
+	}, /* touchpad */
+};
+
+static struct input_handler interactive_input_handler = {
+	.event		= interactive_input_event,
+	.connect	= interactive_input_connect,
+	.disconnect	= interactive_input_disconnect,
+	.name		= "interactive",
+	.id_table	= interactive_ids,
+};
+
 static int cpufreq_interactive_idle_notifier(struct notifier_block *nb,
 					     unsigned long val,
 					     void *data)
@@ -1439,6 +1536,7 @@ static int __init cpufreq_interactive_init(void)
 		init_rwsem(&pcpu->enable_sem);
 	}
 
+	i = input_register_handler(&interactive_input_handler); /* i is unused */
 	register_power_suspend(&interactive_suspend);
 
 	tunables->above_hispeed_delay = default_above_hispeed_delay;
