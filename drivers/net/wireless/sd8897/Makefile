@@ -238,10 +238,10 @@ MOALOBJS += mlinux/moal_proc.o
 MOALOBJS += mlinux/moal_debug.o
 endif
 
-obj-m := sd8897mlan.o
+obj-y := sd8897mlan.o
 sd8897mlan-objs := $(MLANOBJS)
 MOALOBJS += mlinux/moal_sdio_mmc.o
-obj-m += sd8897.o
+obj-y += sd8897.o
 sd8897-objs := $(MOALOBJS)
 
 ###############################################################
