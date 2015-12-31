@@ -529,12 +529,10 @@ on property:ro.debuggable=1
     start console
 
 # adbd is controlled via property triggers in init.<platform>.usb.rc
-service adbd /sbin/adbd --root_seclabel=u:r:su:s0
+service adbd /sbin/adbd
     class core
     socket adbd stream 660 system system
     disabled
-    seclabel u:r:adbd:s0
-    onrestart start adb_enable
 
 # adbd on at boot in emulator
 on property:ro.kernel.qemu=1
