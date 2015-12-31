@@ -33,35 +33,43 @@ on boot
 
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
 
-    chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_slack
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_slack
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boost_factor
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost_factor
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boostpulse
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
+
+
     chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
     chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
     chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/io_busy_threshold
     chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-    chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
     chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/target_loads
-    chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-    chmod 0666 /sys/devices/system/cpu/cpufreq/interactive/timer_slack
 
-    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay 19000
     write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 85
     write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 960000
     write /sys/devices/system/cpu/cpufreq/interactive/io_busy_threshold 50
     write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy 1
-    write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time 40000
     write /sys/devices/system/cpu/cpufreq/interactive/target_loads "65 228000:75 624000:85"
-    write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 20000
-    write /sys/devices/system/cpu/cpufreq/interactive/timer_slack 20000
 
-    chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
     chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
     chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
     chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/io_busy_threshold
     chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-    chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
     chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/target_loads
-    chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-    chmod 0444 /sys/devices/system/cpu/cpufreq/interactive/timer_slack
 
     chmod 0666 /sys/module/lowmemorykiller/parameters/vmpressure_file_min
     chmod 0666 /proc/sys/vm/min_free_kbytes
