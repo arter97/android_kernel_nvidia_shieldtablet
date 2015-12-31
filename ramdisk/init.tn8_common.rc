@@ -19,6 +19,10 @@ on fs
     setprop ro.crypto.umount_sd false
     setprop ro.crypto.fuse_sdcard true
     setprop audio.custompolicy 1
+
+    start fs_mount
+    wait /dev/block/mounted
+
     mount_all /fstab.tn8
 
 on post-fs-data
@@ -68,3 +72,8 @@ on charger
     write /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/enable 1
     write /sys/devices/system/cpu/cpuquiet/current_governor runnable
     write /sys/devices/system/cpu/cpuquiet/tegra_cpuquiet/no_lp -1
+
+service fs_mount /init.mount.sh
+    user root
+    oneshot
+    disabled
