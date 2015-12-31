@@ -119,7 +119,7 @@ on boot
     setprop persist.sys.sf.realtime 1
 
 # Default Read Ahead value for sdcards
-    write /sys/block/mmcblk0/queue/read_ahead_kb 2048
+    write /sys/block/mmcblk0/queue/read_ahead_kb 256
     write /sys/block/mmcblk1/queue/read_ahead_kb 2048
 
 #ozwpan driver: WiFi direct USB shim driver

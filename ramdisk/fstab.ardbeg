@@ -12,6 +12,6 @@
 /dev/block/platform/sdhci-tegra.3/by-name/USP           /staging            emmc      defaults                                               defaults
 /dev/block/platform/sdhci-tegra.3/by-name/MDA           /metadata           emmc      defaults                                               defaults
 /dev/block/platform/sdhci-tegra.3/by-name/SOS           /recovery           emmc      defaults                                               defaults
-/devices/platform/sdhci-tegra.2/mmc_host*               auto                vfat      defaults                                               voldmanaged=sdcard1:auto,encryptable=userdata
-/devices/tegra-ehci.2/usb*                              auto                vfat      defaults                                               voldmanaged=usb:auto
-/dev/block/platform/sdhci-tegra.2/by-num/p1             /sdcard             vfat      defaults                                               recoveryonly
+/devices/platform/sdhci-tegra.2/mmc_host*               auto                auto      defaults                                               voldmanaged=sdcard1:auto,encryptable=userdata
+/devices/tegra-ehci.2/usb*                              auto                auto      defaults                                               voldmanaged=usb:auto
+/dev/block/platform/sdhci-tegra.2/by-num/p1             /sdcard             auto      defaults                                               recoveryonly
