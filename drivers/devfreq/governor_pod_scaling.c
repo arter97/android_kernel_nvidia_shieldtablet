@@ -38,6 +38,7 @@
 #include <linux/clk.h>
 #include <linux/export.h>
 #include <linux/slab.h>
+#include <linux/hrtimer.h>
 #include <linux/clk/tegra.h>
 #include <linux/tegra-soc.h>
 
