@@ -104,7 +104,7 @@ static void debug_flush(struct platform_device *pdev)
 }
 
 #ifdef CONFIG_FIQ_GLUE
-static void fiq_enable(struct platform_device *pdev, unsigned int irq, bool on)
+static void __init fiq_enable(struct platform_device *pdev, unsigned int irq, bool on)
 {
 	if (on)
 		tegra_fiq_enable(irq);

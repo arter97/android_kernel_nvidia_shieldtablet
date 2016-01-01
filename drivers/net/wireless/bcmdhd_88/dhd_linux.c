@@ -1516,12 +1516,14 @@ dhd_op_if(dhd_if_t *ifp)
 	}
 
 	if (ret < 0) {
+#ifdef WL_CFG80211
+		extern struct wl_priv *wlcfg_drv_priv;
+		struct wl_priv *wl = wlcfg_drv_priv;
+#endif
 		ifp->set_multicast = FALSE;
 		dhd->iflist[ifp->idx] = NULL;
 
 #ifdef WL_CFG80211
-		extern struct wl_priv *wlcfg_drv_priv;
-		struct wl_priv *wl = wlcfg_drv_priv;
 		down_write(&wl->netif_sem);
 #endif
 		if (ifp->net) {
@@ -3984,6 +3986,9 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 	uint32 rpt_hitxrate = 1;
 #if defined(CUSTOM_AMPDU_BA_WSIZE)
 	uint32 ampdu_ba_wsize = 0;
+#if defined(CUSTOM_AMPDU_BA_WSIZE) || defined(CUSTOM_IBSS_AMPDU_BA_WSIZE)
+	struct ampdu_tid_control atc;
+#endif
 #endif 
 #ifdef DHD_ENABLE_LPC
 	uint32 lpc = 1;
@@ -4332,7 +4337,6 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 	/* Set ampdu ba wsize to 64 or 16 */
 #ifdef CUSTOM_AMPDU_BA_WSIZE
 	ampdu_ba_wsize = CUSTOM_AMPDU_BA_WSIZE;
-	struct ampdu_tid_control atc;
 #endif
 	if (ampdu_ba_wsize != 0) {
 		bcm_mkiovar("ampdu_ba_wsize", (char *)&ampdu_ba_wsize, 4, iovbuf, sizeof(iovbuf));

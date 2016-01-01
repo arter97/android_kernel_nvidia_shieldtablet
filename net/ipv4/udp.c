@@ -2188,7 +2188,7 @@ static void udp4_format_sock(struct sock *sp, struct seq_file *f,
 	char cmdline[128] = {'\0'};
 
 	seq_printf(f, "%5d: %08X:%04X %08X:%04X"
-		" %02X %08X:%08X %02X:%08lX %08X %5d %8d %lu %d %pK %d",
+		" %02X %08X:%08X %02X:%08lX %08X %5d %8d %lu %d %pK %d %s",
 		bucket, src, srcp, dest, destp, sp->sk_state,
 		sk_wmem_alloc_get(sp),
 		sk_rmem_alloc_get(sp),

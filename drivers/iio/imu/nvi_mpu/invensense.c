@@ -485,7 +485,7 @@ int mpu_memory_write(struct nvi_state *st, u8 mpu_addr, u16 mem_addr,
 	msgs[2].buf = (u8 *)buf;
 	msgs[2].len = len + 1;
 
-#if CONFIG_DYNAMIC_DEBUG
+#ifdef CONFIG_DYNAMIC_DEBUG
 	{
 		char *write = 0;
 		pr_debug("%s WM%02X%02X%02X%s%s - %d\n", st->cfg[0].part,
@@ -555,7 +555,7 @@ int mpu_memory_read(struct nvi_state *st, u8 mpu_addr, u16 mem_addr,
 	} else
 		res = 0;
 
-#if CONFIG_DYNAMIC_DEBUG
+#ifdef CONFIG_DYNAMIC_DEBUG
 	{
 		char *read = 0;
 		pr_debug("%s RM%02X%02X%02X%02X - %s%s\n", st->cfg[0].part,

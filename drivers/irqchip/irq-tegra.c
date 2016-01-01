@@ -134,7 +134,7 @@ static void tegra_fiq_unmask(struct irq_data *d)
 }
 #endif
 
-void tegra_fiq_enable(int irq)
+void __init tegra_fiq_enable(int irq)
 {
 #if defined(CONFIG_ARCH_TEGRA_12x_SOC)
 #if !defined(CONFIG_ARCH_TEGRA_13x_SOC)
