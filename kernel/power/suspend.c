@@ -213,6 +213,13 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 		goto Platform_wake;
 	}
 
+	for_each_possible_cpu(error) {
+		if (!cpu_online(error)) {
+			pr_info("PM: force onlining CPU %d\n", error);
+			cpu_up(error);
+		}
+	}
+
 	ftrace_stop();
 	error = disable_nonboot_cpus();
 	if (error || suspend_test(TEST_CPUS)) {
