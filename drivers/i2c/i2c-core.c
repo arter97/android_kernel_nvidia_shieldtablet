@@ -714,6 +714,8 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
 	client->dev.of_node = info->of_node;
 	ACPI_HANDLE_SET(&client->dev, info->acpi_node.handle);
 
+	device_enable_async_suspend(&client->dev);
+
 	/* For 10-bit clients, add an arbitrary offset to avoid collisions */
 	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
 		     client->addr | ((client->flags & I2C_CLIENT_TEN)
