@@ -49,6 +49,8 @@ on init
 
 on property:sys.boot_completed=1
     write /sys/class/tty/ttyS0/console_write_enable 0
+
+on property:init.svc.bootanim=stopped
     start fstrim-service
 
 service fstrim-service /init.fstrim.sh
