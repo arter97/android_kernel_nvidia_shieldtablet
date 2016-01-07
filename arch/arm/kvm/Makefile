@@ -11,8 +11,8 @@ ccflags-y += -Ivirt/kvm -Iarch/arm/kvm
 CFLAGS_arm.o := -I. $(plus_virt_def)
 CFLAGS_mmu.o := -I.
 
-AFLAGS_init.o := -Wa,-march=armv7-a$(plus_virt)
-AFLAGS_interrupts.o := -Wa,-march=armv7-a$(plus_virt)
+AFLAGS_init.o := -Wa,-mcpu=cortex-a15$(plus_virt)
+AFLAGS_interrupts.o := -Wa,-mcpu=cortex-a15$(plus_virt)
 
 kvm-arm-y = $(addprefix ../../../virt/kvm/, kvm_main.o coalesced_mmio.o)
 

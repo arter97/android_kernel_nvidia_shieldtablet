@@ -25,7 +25,7 @@ tlk_driver-objs += ote_log.o
 
 ifeq ($(CONFIG_ARM),y)
 plus_sec := $(call as-instr,.arch_extension sec,+sec)
-AFLAGS_ote_asm.o :=-Wa,-march=armv7-a$(plus_sec)
+AFLAGS_ote_asm.o :=-Wa,-mcpu=cortex-a15$(plus_sec)
 endif
 
 obj-$(CONFIG_TRUSTED_LITTLE_KERNEL) += tlk_driver.o

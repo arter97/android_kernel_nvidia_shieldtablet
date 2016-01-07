@@ -20,7 +20,7 @@ GCOV_PROFILE_panel-s-wuxga-7-0.o := n
 GCOV_PROFILE_panel-s-wuxga-8-0.o := n
 
 
-asflags-y				+= -march=armv7-a
+asflags-y				+= -mcpu=cortex-a15
 subdir-ccflags-y := -Werror
 subdir-ccflags-y += -I$(srctree)/drivers/platform/tegra/include
 
@@ -55,7 +55,7 @@ obj-y                                   += sleep.o
 obj-$(CONFIG_TEGRA_USE_NCT)             += nct.o nct_sysfs.o
 
 plus_sec := $(call as-instr,.arch_extension sec,+sec)
-AFLAGS_sleep.o :=-Wa,-march=armv7-a$(plus_sec)
+AFLAGS_sleep.o :=-Wa,-mcpu=cortex-a15$(plus_sec)
 
 obj-y                                   += kfuse.o
 
