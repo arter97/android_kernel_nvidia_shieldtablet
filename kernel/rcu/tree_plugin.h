@@ -2171,8 +2171,6 @@ static void rcu_nocb_wait_gp(struct rcu_data *rdp)
 	raw_spin_lock_irqsave(&rnp->lock, flags);
 	needwake = rcu_start_future_gp(rnp, rdp, &c);
 	raw_spin_unlock_irqrestore(&rnp->lock, flags);
-	if (needwake)
-		rcu_gp_kthread_wake(rdp->rsp);
 
 	if (needwake)
 		rcu_gp_kthread_wake(rdp->rsp);
