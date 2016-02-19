@@ -48,7 +48,6 @@ on init
     chmod 0660 /sys/fs/cgroup/memory/sw/tasks
 
     mkdir /system
-    mkdir /su 0755 root root # create mount point for SuperSU
     mkdir /data 0771 system system
     mkdir /cache 0770 system cache
     mkdir /config 0500 root root
@@ -696,17 +695,3 @@ service logcatd /system/bin/logcat -b all -v threadtime -v usec -v printable -D 
     # logd for write to /data/misc/logd, log group for read from log daemon
     user logd
     group log
-
-# mount /data/su.img to /su
-on property:sukernel.mount=1
-    mount ext4 loop@/data/su.img /su noatime
-
-# launch SuperSU daemon
-service daemonsu /sbin/launch_daemonsu.sh
-    class late_start
-    user root
-    seclabel u:r:init:s0
-    oneshot
-
-# SuperSU:PATCH:264
-# SuperSU:STOCK:efae4eeb8525822cde1351782dede2d59bc590c2

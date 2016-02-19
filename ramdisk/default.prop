@@ -16,6 +16,6 @@ ro.adb.secure=0
 #
 # BOOTIMAGE_BUILD_PROPERTIES
 #
-ro.bootimage.build.date=Thu Dec 17 05:40:56 PST 2015
-ro.bootimage.build.date.utc=1450359656
-ro.bootimage.build.fingerprint=nvidia/sb_na_wf/shieldtablet:6.0/MRA58K/40827_642.8910:user/test-keys
+ro.bootimage.build.date=Wed Feb 10 23:34:27 PST 2016
+ro.bootimage.build.date.utc=1455176067
+ro.bootimage.build.fingerprint=nvidia/wx_na_wf/shieldtablet:6.0/MRA58K/41524_664.1902:user/test-keys
