@@ -6,21 +6,10 @@
 #documentation without an express license agreement from NVIDIA Corporation
 #is strictly prohibited.
 
-on init
-
-    # create directory for mounting factory partition
-    mkdir /mnt 0666 system system
-    mkdir /mnt/factory 0666 system system
-
-on boot
-
-    # Needed for touch
-    mount ext4 /dev/block/platform/sdhci-tegra.3/by-name/FCT /mnt/factory ro
-
-#Raydium touch setting
-service rm-runner    /system/bin/rm-runner.sh
-
-# Thie yields each tegra wdt expiration to be at 30 secs and fourth expiration for reboot at 120 secs.
-service watchdogd /sbin/watchdogd 10 110
+# This yields each tegra wdt expiration to be at 7.5 secs and fourth expiration for reboot at 30 secs.
+service watchdogd /sbin/watchdogd 10 20
     class default
     seclabel u:r:watchdogd:s0
+
+# Start rm-wrapper for TWRP
+service rm-wrapper /sbin/rm-wrapper

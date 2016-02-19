@@ -1,3 +1,4 @@
+import /init.recovery.logd.rc
 import /init.recovery.usb.rc
 import /init.recovery.${ro.hardware}.rc
 
@@ -101,8 +102,7 @@ service healthd /sbin/healthd -r
 
 service recovery /sbin/recovery
 
-service adbd /sbin/adbd --root_seclabel=u:r:su:s0 --device_banner=recovery
-    disabled
+service adbd /sbin/adbd
     socket adbd stream 660 system system
     seclabel u:r:adbd:s0
 
