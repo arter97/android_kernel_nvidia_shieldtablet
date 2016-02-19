@@ -2805,11 +2805,6 @@ static void sdhci_card_event(struct mmc_host *mmc)
 	 * tasklet/softirq context cannot call
 	 * sleeping function like __pm_runtime_resume
          */
-
-	/* First check if client has provided their own card event */
-	if (host->ops->card_event)
-		host->ops->card_event(host);
-
 	spin_lock_irqsave(&host->lock, flags);
 
 	/* Check host->mrq_cmd first in case we are runtime suspended */
