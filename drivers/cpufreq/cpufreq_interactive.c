@@ -171,7 +171,11 @@ static void cpufreq_interactive_timer_resched(
 	pcpu->time_in_iowait = get_cpu_iowait_time_us(smp_processor_id(), NULL);
 	pcpu->cputime_speedadj = 0;
 	pcpu->cputime_speedadj_timestamp = pcpu->time_in_idle_timestamp;
-	expires = jiffies + usecs_to_jiffies(tunables->timer_rate);
+	expires = jiffies;
+	if (suspended)
+		expires += usecs_to_jiffies(tunables->timer_rate * 3);
+	else
+		expires += usecs_to_jiffies(tunables->timer_rate);
 	mod_timer_pinned(&pcpu->cpu_timer, expires);
 
 	if (tunables->timer_slack_val >= 0 &&
@@ -191,9 +195,14 @@ static void cpufreq_interactive_timer_start(
 	struct cpufreq_interactive_tunables *tunables, int cpu)
 {
 	struct cpufreq_interactive_cpuinfo *pcpu = &per_cpu(cpuinfo, cpu);
-	unsigned long expires = jiffies +
-		usecs_to_jiffies(tunables->timer_rate);
+	unsigned long expires;
 	unsigned long flags;
+
+	expires = jiffies;
+	if (suspended)
+		expires += usecs_to_jiffies(tunables->timer_rate * 3);
+	else
+		expires += usecs_to_jiffies(tunables->timer_rate);
 
 	pcpu->cpu_timer.expires = expires;
 	add_timer_on(&pcpu->cpu_timer, cpu);
