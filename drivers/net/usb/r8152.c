@@ -27,6 +27,7 @@
 #include <linux/usb/cdc.h>
 #include <linux/suspend.h>
 #include <linux/of.h>
+#include <linux/wakelock.h>
 
 #include "r8152_compatibility.h"
 
@@ -628,6 +629,7 @@ struct r8152 {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,23) && defined(CONFIG_PM_SLEEP)
 	struct notifier_block pm_notifier;
 #endif
+	struct wake_lock r8152_wakelock;
 
 	struct rtl_ops {
 		void (*init)(struct r8152 *);
@@ -7135,6 +7137,9 @@ static int rtl8152_probe(struct usb_interface *intf,
 	netif_info(tp, probe, netdev, "%s\n", DRIVER_VERSION);
 	netif_info(tp, probe, netdev, "%s\n", PATENTS);
 
+	wake_lock_init(&tp->r8152_wakelock, WAKE_LOCK_SUSPEND, "r8152_wakelock");
+	wake_lock(&tp->r8152_wakelock);
+
 	return 0;
 
 out1:
@@ -7161,6 +7166,9 @@ static void rtl8152_disconnect(struct usb_interface *intf)
 		cancel_delayed_work_sync(&tp->hw_phy_work);
 		tp->rtl_ops.unload(tp);
 		free_netdev(tp->netdev);
+
+		wake_unlock(&tp->r8152_wakelock);
+		wake_lock_destroy(&tp->r8152_wakelock);
 	}
 }
 
