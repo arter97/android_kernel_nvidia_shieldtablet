@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2016, NVIDIA CORPORATION.  All rights reserved.
+/* Copyright (c) 2014-2015, NVIDIA CORPORATION.  All rights reserved.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -60,7 +60,7 @@
 #include <linux/mpu_iio.h>
 #endif /* BMP_NVI_MPU_SUPPORT */
 
-#define BMP_DRIVER_VERSION		(300)
+#define BMP_VERSION_DRIVER		(103)
 #define BMP_VENDOR			"Bosch"
 #define BMP_NAME			"bmpX80"
 #define BMP180_NAME			"bmp180"
@@ -235,7 +235,6 @@ struct bmp_state {
 	unsigned int enabled;		/* enable status */
 	unsigned int poll_delay_us;	/* global sampling delay */
 	unsigned int delay_us[BMP_DEV_N]; /* sampling delay */
-	unsigned int timeout_us[BMP_DEV_N]; /* batch timeout */
 	unsigned int scale_i;		/* oversampling index */
 	unsigned int scale_user;	/* user oversampling index */
 	u16 i2c_addr;			/* I2C address */
@@ -757,10 +756,6 @@ static void bmp_mpu_handler_280(u8 *data, unsigned int len, s64 ts, void *p_val)
 	unsigned int i;
 	int ret;
 
-	if (ts < 0)
-		/* error - just drop */
-		return;
-
 	if (!ts) {
 		/* no timestamp means flush done */
 		for (i = 0; i < BMP_DEV_N; i++) {
@@ -788,10 +783,6 @@ static void bmp_mpu_handler_180(u8 *data, unsigned int len, s64 ts, void *p_val)
 	struct bmp_state *st = (struct bmp_state *)p_val;
 	unsigned int i;
 	int ret;
-
-	if (ts < 0)
-		/* error - just drop */
-		return;
 
 	if (!ts) {
 		/* no timestamp means flush done */
@@ -855,7 +846,6 @@ static unsigned int bmp_poll_delay(struct bmp_state *st)
 static int bmp_delay(struct bmp_state *st,
 		     unsigned int delay_us, int scale_user)
 {
-	unsigned int timeout;
 	unsigned int i;
 	int ret;
 	int ret_t = 0;
@@ -888,17 +878,9 @@ static int bmp_delay(struct bmp_state *st,
 				 __func__, delay_us);
 #if BMP_NVI_MPU_SUPPORT
 		ret = 0;
-		if (st->mpu_en) {
-			timeout = -1;
-			for (i = 0; i < BMP_DEV_N; i++) {
-				if (st->enabled & (1 << i)) {
-					if (st->timeout_us[i] < timeout)
-						timeout = st->timeout_us[i];
-				}
-			}
-			ret = nvi_mpu_batch(st->port_id[RD],
-					    delay_us, timeout);
-		}
+		if (st->mpu_en)
+			ret = nvi_mpu_delay_us(st->port_id[RD],
+					       (unsigned long)delay_us);
 		if (ret)
 			ret_t |= ret;
 		else
@@ -1020,25 +1002,25 @@ static int bmp_batch(void *client, int snsr_id, int flags,
 		     unsigned int period, unsigned int timeout)
 {
 	struct bmp_state *st = (struct bmp_state *)client;
-	unsigned int old_peroid;
-	unsigned int old_timeout;
-	int ret;
+	unsigned int old;
+	int ret = 0;
 
-	if (timeout && !st->mpu_en)
-		/* timeout not supported (no HW FIFO) */
-		return -EINVAL;
+#if BMP_NVI_MPU_SUPPORT
+	if (st->mpu_en)
+		ret = nvi_mpu_batch(st->port_id[RD], flags, period, timeout);
+	else
+#endif /* BMP_NVI_MPU_SUPPORT */
+		if (timeout)
+			/* timeout not supported (no HW FIFO) */
+			return -EINVAL;
 
-	old_peroid = st->delay_us[snsr_id];
-	old_timeout = st->timeout_us[snsr_id];
+	old = st->delay_us[snsr_id];
 	st->delay_us[snsr_id] = period;
-	st->timeout_us[snsr_id] = timeout;
-	ret = bmp_delay(st, bmp_poll_delay(st), st->scale_user);
+	ret |= bmp_delay(st, bmp_poll_delay(st), st->scale_user);
 	if (st->enabled && st->i2c->irq && !ret)
 		ret = bmp_mode(st);
-	if (ret) {
-		st->delay_us[snsr_id] = old_peroid;
-		st->timeout_us[snsr_id] = old_timeout;
-	}
+	if (ret)
+		st->delay_us[snsr_id] = old;
 	return 0;
 }
 
@@ -1154,17 +1136,6 @@ static int bmp_regs(void *client, int snsr_id, char *buf)
 	return t;
 }
 
-static int bmp_nvs_read(void *client, int snsr_id, char *buf)
-{
-	struct bmp_state *st = (struct bmp_state *)client;
-	ssize_t t;
-
-	t = sprintf(buf, "driver v.%u\n", BMP_DRIVER_VERSION);
-	t += sprintf(buf + t, "mpu_en=%x\n", st->mpu_en);
-	t += sprintf(buf + t, "nvi_config=%hhu\n", st->nvi_config);
-	return t;
-}
-
 static struct nvs_fn_dev bmp_fn_dev = {
 	.enable				= bmp_enable,
 	.batch				= bmp_batch,
@@ -1172,7 +1143,6 @@ static struct nvs_fn_dev bmp_fn_dev = {
 	.resolution			= bmp_resolution,
 	.reset				= bmp_reset,
 	.regs				= bmp_regs,
-	.nvs_read			= bmp_nvs_read,
 };
 
 static int bmp_suspend(struct device *dev)
