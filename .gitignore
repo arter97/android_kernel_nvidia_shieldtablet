@@ -47,6 +47,7 @@ modules.builtin
 /*.img
 /*.zip
 !/kernelzip/**
+!/recovery/**
 
 #
 # Debian directory (make deb-pkg)
